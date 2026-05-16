@@ -58,7 +58,7 @@ def afficher_header():
             unsafe_allow_html=True
         )
         st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
-        AIDE_PATH = Path(__file__).resolve().parent / "assets" / "Aide.html"
+        AIDE_PATH = Path(__file__).resolve().parent / "assets" / "Notice d'utilisation - PPEI Artificialisation.pdf"
         if st.button("📖 Ouvrir l'aide.", help="Ouvrir l'aide dans un nouvel onglet"):
             webbrowser.open_new_tab(AIDE_PATH.as_uri())
         st.markdown("""
