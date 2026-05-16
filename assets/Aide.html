@@ -185,60 +185,74 @@ body {
             <li>colonnes ajoutées, supprimées ou renommées</li>
             <li>nouveaux millésimes et années supplémentaires</li>
             <li>catégories modifiées ou enrichies</li>
-            <li>suffixes dynamiques (ex : <em>artcom11</em> → <em>artcom12</em>)</li>
+            <li>suffixes dynamiques (ex : <em>artcom11</em> → <em>artcom24</em>)</li>
         </ul>
         Sans ce moteur, l’outil deviendrait rapidement obsolète.
     </div>
 
-    <h3>🧩 Une grammaire dynamique</h3>
+    <h3>🧱 Définition des constantes pour maintenances futures</h3>
     <p>
-        Le moteur utilise une <strong>grammaire</strong> : un ensemble de règles permettant de reconnaître automatiquement
-        les colonnes du fichier, même si leur nom change d’un millésime à l’autre.
+        Le moteur s’appuie sur un <strong>système centralisé de constantes</strong> permettant d’assurer une compatibilité
+        durable avec les fichiers CEREMA. Ce système garantit que l’application reste fonctionnelle même lorsque les
+        millésimes évoluent, sans nécessiter de modifier la logique interne.
     </p>
 
     <div class="card">
-        Exemples de règles de reconnaissance :
+        <strong>1. Paramètres millésimés (à mettre à jour)</strong><br>
+        Ces constantes définissent les années utilisées dans le fichier CEREMA :
         <ul style="margin-top:6px; line-height:1.7;">
-            <li><code>art(\d{2})(act|hab|mix|rou|fer|inc)(\d{2})</code> → flux d’artificialisation</li>
-            <li><code>naf(\d{2})art(\d{2})</code> → flux NAF → artificialisation</li>
-            <li><code>surf([a-z]+)(\d{4})</code> → surfaces par catégorie</li>
-            <li><code>aav(\d{4})(txt|_typo)?</code> → typologies AAV</li>
+            <li>année de début et de fin des flux d’artificialisation</li>
+            <li>millésimes INSEE (population, ménages, emplois)</li>
+            <li>année de référence des aires d’attraction des villes</li>
+            <li>périodes de comparaison (ex : 2015–2021)</li>
         </ul>
-        La grammaire couvre les années <strong>2009 à 2099</strong> et s’adapte automatiquement aux nouveaux flux publiés.
+        Elles permettent d’adapter automatiquement l’outil à chaque nouveau millésime publié.
     </div>
 
-    <h3>🔄 Reconstruction automatique des flux</h3>
-    <p>
-        Une fois les colonnes reconnues, le moteur :
-    </p>
-    <div class="card">
-        <ul style="line-height:1.7;">
-            <li>regroupe les flux par année et par catégorie (habitat, activité, mixte, route, ferroviaire, inconnu)</li>
-            <li>calcule les totaux annuels</li>
-            <li>identifie les périodes dynamiques : <strong>référence (2011–2020)</strong>, <strong>ZAN (2021–2023)</strong>, <strong>total (2011–2023)</strong></li>
-            <li>sécurise les valeurs manquantes ou incohérentes</li>
-            <li>prépare les données pour les graphiques, les ratios et le PDF</li>
+    <div class="card" style="margin-top:10px;">
+        <strong>2. Paramètres structurels (à ne jamais modifier)</strong><br>
+        Ces constantes assurent la <strong>lecture correcte des colonnes du fichier CSV</strong> :
+        <ul style="margin-top:6px; line-height:1.7;">
+            <li>codes INSEE (commune, département, région)</li>
+            <li>identifiants EPCI et SCoT</li>
+            <li>population, ménages, emplois</li>
+            <li>surface communale</li>
+            <li>codes AAV</li>
         </ul>
+        Elles garantissent la stabilité du moteur, indépendamment des évolutions du CEREMA.
     </div>
 
-    <h3>🛡️ Robustesse et test de compatibilité</h3>
-    <p>
-        Lors du chargement du fichier, un <strong>test automatique de compatibilité</strong> est effectué :
-    </p>
-    <div class="card">
-        <ul style="line-height:1.7;">
-            <li>les colonnes sont comparées à la grammaire</li>
-            <li>les colonnes non reconnues sont listées</li>
-            <li>en cas d’incompatibilité majeure, l’application s’arrête proprement avec un message explicite</li>
+    <div class="card" style="margin-top:10px;">
+        <strong>3. Génération automatique des catégories d’artificialisation</strong><br>
+        Le moteur génère automatiquement les noms des colonnes de flux pour chaque année :
+        <ul style="margin-top:6px; line-height:1.7;">
+            <li>activité → <code>artXXactYY</code></li>
+            <li>habitat → <code>artXXhabYY</code></li>
+            <li>mixte → <code>artXXmixYY</code></li>
+            <li>inconnu → <code>artXXincYY</code></li>
+            <li>ferroviaire → <code>artXXferYY</code></li>
+            <li>route → <code>artXXrouYY</code></li>
         </ul>
+        Ce mécanisme évite toute maintenance manuelle fastidieuse.
+    </div>
+
+    <div class="card" style="margin-top:10px;">
+        <strong>4. Totaux et périodes de référence</strong><br>
+        Deux constantes clés sont générées automatiquement :
+        <ul style="margin-top:6px; line-height:1.7;">
+            <li><strong>M_ART_TOTALE</strong> → consommation totale sur toute la période</li>
+            <li><strong>M_ART_REFERENCE</strong> → consommation sur la période 2011–2020</li>
+        </ul>
+        Elles servent de base aux indicateurs ZAN.
     </div>
 
     <div class="alert" style="background:#E3F0FF; border-color:#2c6faa;">
         <strong>En résumé :</strong><br>
-        Le moteur autodidactique garantit une lecture fiable, durable et adaptable des fichiers CEREMA, sans modifier
-        le fichier source et sans dépendre d’un format figé.
+        Le système de constantes garantit une lecture fiable, durable et adaptable des fichiers CEREMA, tout en simplifiant
+        la maintenance et en assurant une compatibilité automatique avec les nouveaux millésimes.
     </div>
 </div>
+
 
 <!-- 3 — STRUCTURE CEREMA -->
 <div class="section" id="structure-cerema">
