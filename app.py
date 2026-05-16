@@ -1,6 +1,6 @@
 """
 @author : Philippe PETIT
-@version : 5.0.00
+@version : 5.1.00
 @description : Tableau de bord artificialisation Détection automatique des champs ajoutés ou de changement de millésime
 """
 import streamlit as st
@@ -15,7 +15,7 @@ from Datas.constantes import *
 from Datas.Lire_Datas_csv import lire_csv, affiche_selecteur
 from vues.general_commune import Afficher_identite_commune, Afficher_general_communes, afficher_general_commune_graph, afficher_general_commune_ratio, afficher_trajectoire_zan
 #from ui.rapport_epci_pdf import generer_rapport_epci_pdf
-from rapport.grap_export_pdf import *
+from rapport.graph_export_pdf import *
 from ui.utilitaires import get_coords_from_insee
 
 
@@ -29,7 +29,7 @@ from ui.utilitaires import get_coords_from_insee
 
 st.set_page_config(
     layout="wide",
-    page_title="Tableau de bord artificialisation communale (V4.0)",
+    page_title="Tableau de bord artificialisation communale (V5.1)",
     page_icon="📊",
     initial_sidebar_state="expanded"
 )
@@ -50,7 +50,7 @@ def afficher_header():
             <div style='margin-top:10px;'>
                 <h1 style='margin-bottom:0px;'>📊 Tableau de bord artificialisation communale & intercommunale</h1>
                 <div style='font-size:1rem; font-weight:600; color:orange; margin-top:6px;'>
-                    Version 5.0 Stable, millésime 2026<br>
+                    Version 5.1 Stable, millésime 2026<br>
                     Auteur : Philippe PETIT
                 </div>
             </div>
@@ -229,7 +229,8 @@ if "df" in st.session_state:
         commune     = st.session_state.get("commune")        
         insee       = st.session_state.get("code_insee")
         if commune :
-            if st.button("📄 Générer le rapport PDF"):
+            st.header(f"📊 {commune}")
+            if st.button("📄 Générer le rapport PDF pour la commune"):
                 with st.spinner("Veuillez patienter... Traitement du rapport en cours..."):
                     selection = (
                         (df[M_REG_NOM] == region) &
@@ -250,6 +251,7 @@ if "df" in st.session_state:
                 )
         else:
             st.caption("Veuillez sélectionner une commune")
+
 
     with tab_lien:
         df = st.session_state["df"].copy()
