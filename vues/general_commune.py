@@ -5,10 +5,15 @@ import pandas as pd
 from Datas.constantes import *
 from ui.cards import badge, badgeBlue, badgeGreen, badgeRed
 
+
 def Afficher_identite_commune():
     """
-    Affiche la liste des communes filtrées selon les sélections
-    (région, département, scot, epci, commune) + formatage.
+    Affiche l'identité du SCoT sélectionné :
+    - Nom du SCoT
+    - Liste des régions couvertes
+    - Liste des départements couverts
+    - Liste des EPCI concernés
+    - Nombre de communes
     """
 
     if "df" not in st.session_state:
@@ -16,78 +21,35 @@ def Afficher_identite_commune():
         return None
 
     df = st.session_state["df"].copy()
+    scot = st.session_state.get("scot")
 
-    # --- Récupération des filtres ---
-    region      = st.session_state.get("region")
-    departement = st.session_state.get("departement")
-    scot        = st.session_state.get("scot")
-    epci        = st.session_state.get("epci")
-    commune     = st.session_state.get("commune")   # <-- AJOUT
-
-    # --- Affichage des filtres sélectionnés ---
-    if region:
-        st.markdown(f"<span style='color:orange; font-weight:bold'>Région :</span> {region}", unsafe_allow_html=True)
-    if departement:
-        st.markdown(f"<span style='color:orange; font-weight:bold'>Département :</span> {departement}", unsafe_allow_html=True)
-    if scot:
-        st.markdown(f"<span style='color:orange; font-weight:bold'>SCoT :</span> {scot}", unsafe_allow_html=True)
-    if epci:
-        st.markdown(f"<span style='color:orange; font-weight:bold'>EPCI :</span> {epci}", unsafe_allow_html=True)
-    if commune:
-        st.markdown(f"<span style='color:orange; font-weight:bold'>Commune :</span> {commune}", unsafe_allow_html=True)  # <-- AJOUT
-
-    st.divider()
-
-    # --- Application des filtres ---
-    if region:
-        df = df[df[M_REG_NOM] == region]
-
-    if departement:
-        df = df[df[M_DEP_NOM] == departement]
-
-    if scot:
-        df = df[df[M_SCOT_NOM] == scot]
-
-    if epci:
-        df = df[df[M_EPCI_NOM] == epci]
-
-    if commune:  # <-- AJOUT
-        df = df[df[M_COM_NOM] == commune]
-    # --- Colonnes à afficher ---
-    colonnes = [
-        M_COM_INSEE,
-        M_COM_NOM,
-        M_REG_NOM,
-        M_DEP_NOM,
-        M_SCOT_NOM,
-        M_EPCI_NOM
-    ]
-
-    colonnes_existantes = [c for c in colonnes if c in df.columns]
-    if not colonnes_existantes:
-        st.error("Aucune des colonnes demandées n'existe dans le fichier CSV.")
+    if not scot:
+        st.info("Veuillez sélectionner un SCoT.")
         return None
 
-    # --- Table filtrée ---
-    table = df[colonnes_existantes].sort_values(M_COM_INSEE).copy()
+    # --- Filtrage du SCoT ---
+    df_scot = df[df[M_SCOT_NOM] == scot].copy()
 
-    # --- Renommage ---
-    nouveaux_noms = {
-        M_COM_INSEE: "Code INSEE",
-        M_COM_NOM: "Commune",
-        M_REG_NOM: "Région",
-        M_DEP_NOM: "Département",
-        M_SCOT_NOM: "SCoT",
-        M_EPCI_NOM: "EPCI"
-    }
-    table = table.rename(columns=nouveaux_noms)
+    # --- Extraction des identités ---
+    regions = sorted(df_scot[M_REG_NOM].dropna().unique())
+    departements = sorted(df_scot[M_DEP_NOM].dropna().unique())
+    epcis = sorted(df_scot[M_EPCI_NOM].dropna().unique())
+    nb_communes = df_scot[M_COM_NOM].nunique()
 
-    # --- Affichage ---
-    st.dataframe(
-        table,
-        use_container_width=True,
-        hide_index=True
-    )
+    # --- AFFICHAGE ---
+    st.markdown(f"## 🗂️ Identité du SCoT : **{scot}**")
+
+    st.markdown("### 🌍 Régions couvertes")
+    st.markdown(", ".join(regions))
+
+    st.markdown("### 🏛️ Départements couverts")
+    st.markdown(", ".join(departements))
+
+    st.markdown("### 🧩 EPCI concernés")
+    st.markdown(", ".join(epcis))
+
+    st.markdown("### 🏘️ Nombre de communes")
+    st.markdown(f"**{nb_communes} communes**")
 
 def Afficher_general_communes():
     """
@@ -102,18 +64,18 @@ def Afficher_general_communes():
     df = st.session_state["df"].copy()
 
     # Récupération des filtres
-    region      = st.session_state.get("region")
-    departement = st.session_state.get("departement")
+    #region      = st.session_state.get("region")
+    #departement = st.session_state.get("departement")
     scot        = st.session_state.get("scot")
     epci        = st.session_state.get("epci")
     commune     = st.session_state.get("commune") 
 
     # Application des filtres
-    if region:
-        df = df[df[M_REG_NOM] == region]
+    #if region:
+    #    df = df[df[M_REG_NOM] == region]
 
-    if departement:
-        df = df[df[M_DEP_NOM] == departement]
+    #if departement:
+    #    df = df[df[M_DEP_NOM] == departement]
 
     if scot:
         df = df[df[M_SCOT_NOM] == scot]
@@ -166,7 +128,15 @@ def Afficher_general_communes():
     # Ajout de la ligne TOTAL
     table_tot = pd.concat([table, pd.DataFrame([total_row])], ignore_index=True)
 
-    st.header("📊 Données générales")
+    if commune:
+        st.header(f"📊 {commune}")
+    else:
+        if epci:
+            st.header(f"📊 {epci}")
+        else:
+            if scot:
+                st.header(f"📊  {scot}")
+
     # Totaux
     pop_totale = table_tot.loc[table_tot[M_COM_NOM] == "TOTAL", M_POP_MAX].values[0]
     men_totale = table_tot.loc[table_tot[M_COM_NOM] == "TOTAL", M_MEN_MAX].values[0]
@@ -247,17 +217,17 @@ def afficher_general_commune_graph():
     df = st.session_state["df"].copy()
 
     # Récupération des filtres
-    region      = st.session_state.get("region")
-    departement = st.session_state.get("departement")
+    #region      = st.session_state.get("region")
+    #departement = st.session_state.get("departement")
     scot        = st.session_state.get("scot")
     epci        = st.session_state.get("epci")
     commune     = st.session_state.get("commune") 
 
     # Application des filtres
-    if region:
-        df = df[df[M_REG_NOM] == region]
-    if departement:
-        df = df[df[M_DEP_NOM] == departement]
+    #if region:
+    #    df = df[df[M_REG_NOM] == region]
+    #if departement:
+    #    df = df[df[M_DEP_NOM] == departement]
     if scot:
         df = df[df[M_SCOT_NOM] == scot]
     if epci:
@@ -368,17 +338,25 @@ def afficher_trajectoire_zan():
     df = st.session_state["df"].copy()
 
     # Récupération des filtres
-    region      = st.session_state.get("region")
-    departement = st.session_state.get("departement")
+    #region      = st.session_state.get("region")
+    #departement = st.session_state.get("departement")
     scot        = st.session_state.get("scot")
     epci        = st.session_state.get("epci")
     commune     = st.session_state.get("commune") 
+    if commune:
+        st.header(f"📊 {commune}")
+    else:
+        if epci:
+            st.header(f"📊 {epci}")
+        else:
+            if scot:
+                st.header(f"📊  {scot}")
 
     # Application des filtres
-    if region:
-        df = df[df[M_REG_NOM] == region]
-    if departement:
-        df = df[df[M_DEP_NOM] == departement]
+    #if region:
+     #   df = df[df[M_REG_NOM] == region]
+    #if departement:
+    #    df = df[df[M_DEP_NOM] == departement]
     if scot:
         df = df[df[M_SCOT_NOM] == scot]
     if epci:
@@ -389,7 +367,7 @@ def afficher_trajectoire_zan():
     if df.empty:
         st.warning("Aucune commune ne correspond aux filtres sélectionnés.")
         return
-
+    
     # ================================
     # 2. Recalcul de la consommation de référence 2011–2020
     # ================================
@@ -536,17 +514,25 @@ def afficher_general_commune_ratio():
     df = st.session_state["df"].copy()
 
     # Récupération des filtres
-    region      = st.session_state.get("region")
-    departement = st.session_state.get("departement")
+    #region      = st.session_state.get("region")
+    #departement = st.session_state.get("departement")
     scot        = st.session_state.get("scot")
     epci        = st.session_state.get("epci")
-    commune     = st.session_state.get("commune") 
+    commune     = st.session_state.get("commune")
+    if commune:
+        st.header(f"📊 {commune}")
+    else:
+        if epci:
+            st.header(f"📊 {epci}")
+        else:
+            if scot:
+                st.header(f"📊  {scot}") 
 
     # Application des filtres
-    if region:
-        df = df[df[M_REG_NOM] == region]
-    if departement:
-        df = df[df[M_DEP_NOM] == departement]
+    #if region:
+    #    df = df[df[M_REG_NOM] == region]
+    #if departement:
+    #    df = df[df[M_DEP_NOM] == departement]
     if scot:
         df = df[df[M_SCOT_NOM] == scot]
     if epci:
