@@ -3,6 +3,20 @@
 @version : 5.1.00
 @description : Tableau de bord artificialisation Détection automatique des champs ajoutés ou de changement de millésime
 """
+import sys, os
+
+# Fix PyInstaller : plusieurs stratégies pour trouver _internal/
+_candidates = [
+    getattr(sys, '_MEIPASS', None),
+    os.path.dirname(os.path.abspath(__file__)),
+    os.path.dirname(sys.executable),
+    os.path.join(os.path.dirname(sys.executable), '_internal'),
+]
+for _p in _candidates:
+    if _p and os.path.isdir(os.path.join(_p, 'ui')) and _p not in sys.path:
+        sys.path.insert(0, _p)
+        break
+
 import streamlit as st
 import webbrowser
 import pandas as pd
@@ -21,6 +35,13 @@ from ui.utilitaires import get_coords_from_insee
 
 
 
+
+def fermer_page_web():
+    st.markdown("""
+        <script>
+            window.location.href = "about:blank";
+        </script>
+    """, unsafe_allow_html=True)
 
 
 # =====================================================
@@ -57,18 +78,25 @@ def afficher_header():
             """,
             unsafe_allow_html=True
         )
-        st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
-        AIDE_PATH = Path(__file__).resolve().parent / "assets" / "Notice d'utilisation - PPEI Artificialisation.pdf"
-        if st.button("📖 Ouvrir l'aide.", help="Ouvrir l'aide dans un nouvel onglet"):
-            webbrowser.open_new_tab(AIDE_PATH.as_uri())
-        st.markdown("""
-        <style>
-        button[kind="secondary"] p {
-            color: #E67E22 !important;
-            font-weight: 700 !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
+
+    # --- Bouton Quitter ---
+    if st.button("🚪 Quitter l'application"):
+        st.session_state["confirm_quit"] = True
+
+    if st.session_state.get("confirm_quit", False):
+        st.warning("Voulez-vous vraiment quitter l'application ?")
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Oui, quitter maintenant"):
+                fermer_page_web()   # ferme l'onglet
+                os._exit(0)         # tue le process EXE
+        with col2:
+            if st.button("Non, annuler"):
+                st.session_state["confirm_quit"] = False
+
+
+    
+        
 
 
 
