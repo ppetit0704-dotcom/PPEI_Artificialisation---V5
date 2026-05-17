@@ -223,7 +223,7 @@ def Afficher_general_communes():
     table_tot = table_tot.rename(columns=nouveaux_noms)
     st.dataframe(
         table_tot,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -312,7 +312,7 @@ def afficher_general_commune_graph():
     # 6. Affichage du tableau
     # ================================
     st.subheader("📊 Consommations d’espace 2011–2020 par commune et par catégorie (ha)")
-    st.dataframe(df_res, use_container_width=True)
+    st.dataframe(df_res, width="stretch")
 
     # ================================
     # 7. Graphique en barres empilées
@@ -333,7 +333,7 @@ def afficher_general_commune_graph():
         labels={"Consommation": "ha"}
     )
 
-    st.plotly_chart(fig_bar, use_container_width=True)
+    st.plotly_chart(fig_bar, width="stretch")
 
     # ================================
     # 8. Camembert global
@@ -347,7 +347,7 @@ def afficher_general_commune_graph():
         title="Répartition totale 2011–2020 par catégorie (ha)"
     )
 
-    st.plotly_chart(fig_pie, use_container_width=True)
+    st.plotly_chart(fig_pie, width="stretch")
 
 def afficher_trajectoire_zan():
     import plotly.express as px
@@ -494,12 +494,12 @@ def afficher_trajectoire_zan():
     })
 
     st.subheader("📋 Synthèse ZAN par commune")
-    st.dataframe(table, use_container_width=True)
+    st.dataframe(table, width="stretch")
 
     # ================================
     # 7. Graphique si nb communes ≤ 30
     # ================================
-    if len(df) <= 30:
+    if len(df) <= 70:
         df_graph = table.melt(
             id_vars="Commune",
             value_vars=[
@@ -521,7 +521,7 @@ def afficher_trajectoire_zan():
             title="Comparaison ZAN par commune"
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     else:
         st.info("Graphique non affiché : trop de communes (limite = 30).")
 
@@ -631,7 +631,7 @@ def afficher_general_commune_ratio():
             + [f"% {c}" for c in categories.keys()]
             + ["ha / habitant", "ha / ménage", "ha / emploi"]
         ],
-        use_container_width=True
+        width="stretch"
     )
     # ================================
     # 6. Graphique radar (profil communal)
@@ -663,6 +663,6 @@ def afficher_general_commune_ratio():
         title="Profil d’artificialisation par catégorie (%)"
     )
 
-    st.plotly_chart(fig_radar, use_container_width=True)
+    st.plotly_chart(fig_radar, width="stretch")
 
 
