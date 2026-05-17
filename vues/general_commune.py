@@ -20,10 +20,15 @@ def Afficher_identite_commune():
         st.warning("Aucune donnée chargée.")
         return None
 
-    df = st.session_state["df"].copy()
-    scot = st.session_state.get("scot")
+    df           = st.session_state["df"].copy()
+    region       = st.session_state.get("region")
+    departement  = st.session_state.get("departement")
+    scot         = st.session_state.get("scot")
+    epci         = st.session_state.get("epci")
+    commune      = st.session_state.get("commune")  
+    insee        = st.session_state.get("code_insee")
 
-    if not scot:
+    if not scot and not epci and not commune:
         st.info("Veuillez sélectionner un SCoT.")
         return None
 
@@ -36,20 +41,40 @@ def Afficher_identite_commune():
     epcis = sorted(df_scot[M_EPCI_NOM].dropna().unique())
     nb_communes = df_scot[M_COM_NOM].nunique()
 
+    if commune:
+        st.markdown(f"## 🗂️ **{insee} - {commune}**")
+        st.write(f"🗂️ Identité du SCoT : {scot}")
+        st.write(f"🌍 Régions :  {region}")
+        st.write(f"🏛️ Département : {departement}")
+        st.write(f"🧩 EPCI :  {epci}")
+
+    if epci and not commune:
+        st.write(f"🧩 EPCI :  {epci}")
+        st.write(f"🗂️ Identité du SCoT : {scot}")
+        st.write(f"🏛️ Département : {departement}")
+        st.write(f"🌍 Régions :  {region}")
+
+    if (scot or epcis)and not epci and not commune:
     # --- AFFICHAGE ---
-    st.markdown(f"## 🗂️ Identité du SCoT : **{scot}**")
+        st.write(f"🗂️ Identité du SCoT : {scot}")
 
-    st.markdown("### 🌍 Régions couvertes")
-    st.markdown(", ".join(regions))
+        st.write("🌍 Régions couvertes")
+        st.write(", ".join(regions))
 
-    st.markdown("### 🏛️ Départements couverts")
-    st.markdown(", ".join(departements))
+        st.write("🏛️ Départements couverts")
+        st.write(", ".join(departements))
 
-    st.markdown("### 🧩 EPCI concernés")
-    st.markdown(", ".join(epcis))
+        st.write("🧩 EPCI concernés")
+        if not epci:
+            st.write(", ".join(epcis))
+        else:         
+            st.write("EPCI : ",epci)
 
-    st.markdown("### 🏘️ Nombre de communes")
-    st.markdown(f"**{nb_communes} communes**")
+        st.write("🏘️ Nombre de communes")
+        st.write(f"**{nb_communes} communes")
+
+
+
 
 def Afficher_general_communes():
     """
