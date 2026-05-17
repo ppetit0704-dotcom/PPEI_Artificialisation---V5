@@ -257,26 +257,27 @@ if "df" in st.session_state:
         commune     = st.session_state.get("commune")        
         insee       = st.session_state.get("code_insee")
         if commune :
-            st.header(f"📊 {commune}")
-            if st.button("📄 Générer le rapport PDF pour la commune"):
-                with st.spinner("Veuillez patienter... Traitement du rapport en cours..."):
-                    selection = (
-                        (df[M_REG_NOM] == region) &
-                        (df[M_DEP_NOM] == departement) &
-                        (df[M_SCOT_NOM] == scot) &
-                        (df[M_EPCI_NOM] == epci) &
-                        (df[M_COM_NOM] == commune)
-                    )
-                    ligne_commune = df.loc[selection].iloc[0]
-                    pdf_bytes = generer_rapport_pdf(ligne_commune, 0.5)
-                st.success("Rapport généré avec succès ! Vous pouvez maintenant le télécharger.")
+            with st.spinner():
+                st.header(f"📊 {commune}")
+                if st.button("📄 Générer le rapport PDF pour la commune"):
+                    with st.spinner("Veuillez patienter... Traitement du rapport en cours..."):
+                        selection = (
+                            (df[M_REG_NOM] == region) &
+                            (df[M_DEP_NOM] == departement) &
+                            (df[M_SCOT_NOM] == scot) &
+                            (df[M_EPCI_NOM] == epci) &
+                            (df[M_COM_NOM] == commune)
+                        )
+                        ligne_commune = df.loc[selection].iloc[0]
+                        pdf_bytes = generer_rapport_pdf(ligne_commune, 0.5)
+                    st.success("Rapport généré avec succès ! Vous pouvez maintenant le télécharger.")
 
-                st.download_button(
-                    "📥 Télécharger le rapport PDF",
-                    pdf_bytes,
-                    file_name=f"rapport_{insee}.pdf",
-                    mime="application/pdf"
-                )
+                    st.download_button(
+                        "📥 Télécharger le rapport PDF",
+                        pdf_bytes,
+                        file_name=f"rapport_{insee}.pdf",
+                        mime="application/pdf"
+                    )
         else:
             st.caption("Veuillez sélectionner une commune")
 
@@ -292,53 +293,56 @@ if "df" in st.session_state:
         commune     = st.session_state.get("commune")
         insee       = st.session_state.get("code_insee")
         if commune:
-            
-            st.write("Découvrez la commune : ", insee, " - ",commune)
-            
-            lat, lon = get_coords_from_insee(insee)
-            url_maps = f"https://www.geoportail.gouv.fr/carte?c={lon},{lat}&z=15&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&v1=PLAN.IGN::GEOPORTAIL:GPP:TMS(1;s:standard)&l2=OCSGE.COUVERTURE::GEOPORTAIL:OGC:WMTS(0.6)&l3=OCSGE.USAGE::GEOPORTAIL:OGC:WMTS(0.6)&permalink=yes"
-            st.markdown(f"[🗺️ OCSGE (L'OCS GE est une base de données qui contribue au suivi de l'occupation du sol, et à celui de l'usage des sols)]({url_maps})")
-            
-            url_maps2 = f"https://www.geoportail-urbanisme.gouv.fr/map/#tile=1&lon={lon}&lat={lat}&zoom=12&mlon={lon}&mlat={lat}"
-            st.markdown(f"[🗺️ Document d'urbanisme (Le Géoportail de l'urbanisme a pour mission de rendre accessibles les documents d'urbanisme et les servitudes d'utilité publique à tous les utilisateurs du)]({url_maps2})")
+            with st.spinner():
+                st.write("Découvrez la commune : ", insee, " - ",commune)
+                
+                lat, lon = get_coords_from_insee(insee)
+                url_maps20=f"https://www.google.fr/maps/place/{commune}+{departement}"
+                st.markdown(f"[🗺️ Localisez la commune sur Google Maps]({url_maps20})")
 
-            url_maps3 = f"https://www.geoportail.gouv.fr/carte?c={lon},{lat}&z=14&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&l1=LANDUSE.AGRICULTURE2021::GEOPORTAIL:OGC:WMTS(0.8)&permalink=yes"
-            st.markdown(f"[🗺️ RPG 2022 (Le Registre parcellaire graphique (RPG) est un système d'information géographique représentant au 1/5000ème les îlots culturaux)]({url_maps3})")
+                url_maps = f"https://www.geoportail.gouv.fr/carte?c={lon},{lat}&z=15&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&v1=PLAN.IGN::GEOPORTAIL:GPP:TMS(1;s:standard)&l2=OCSGE.COUVERTURE::GEOPORTAIL:OGC:WMTS(0.6)&l3=OCSGE.USAGE::GEOPORTAIL:OGC:WMTS(0.6)&permalink=yes"
+                st.markdown(f"[🗺️ OCSGE (L'OCS GE est une base de données qui contribue au suivi de l'occupation du sol, et à celui de l'usage des sols)]({url_maps})")
+                
+                url_maps2 = f"https://www.geoportail-urbanisme.gouv.fr/map/#tile=1&lon={lon}&lat={lat}&zoom=12&mlon={lon}&mlat={lat}"
+                st.markdown(f"[🗺️ Document d'urbanisme (Le Géoportail de l'urbanisme a pour mission de rendre accessibles les documents d'urbanisme et les servitudes d'utilité publique à tous les utilisateurs du)]({url_maps2})")
 
-            url_maps4 = f"https://cadastre.data.gouv.fr/map?style=ortho&parcelleId=315160000A0432#16.00/{lat}/{lon}"
-            st.markdown(f"[🗺️ CADASTRE (Le cadastre est le registre public qui recense et identifie les propriétés foncières (immeuble, maison, terrain, etc.).)]({url_maps4})")
+                url_maps3 = f"https://www.geoportail.gouv.fr/carte?c={lon},{lat}&z=14&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&l1=LANDUSE.AGRICULTURE2021::GEOPORTAIL:OGC:WMTS(0.8)&permalink=yes"
+                st.markdown(f"[🗺️ RPG 2022 (Le Registre parcellaire graphique (RPG) est un système d'information géographique représentant au 1/5000ème les îlots culturaux)]({url_maps3})")
 
-            st.divider()
-            
-            url_maps5 = f"https://www.insee.fr/fr/statistiques/2011101?geo=COM-{insee}"
-            st.markdown(f"[🗺️ INSEE : Dossier complet commune]({url_maps5})")
+                url_maps4 = f"https://cadastre.data.gouv.fr/map?style=ortho&parcelleId=315160000A0432#16.00/{lat}/{lon}"
+                st.markdown(f"[🗺️ CADASTRE (Le cadastre est le registre public qui recense et identifie les propriétés foncières (immeuble, maison, terrain, etc.).)]({url_maps4})")
 
-            url_maps6 = f"https://www.picto-occitanie.fr/geoclip/#c=report&chapter=demo&report=r01&selgeo1=com16.{insee}&selgeo2=epci.{epci_siret}"
-            st.markdown(f"[🗺️ Picto-Stat]({url_maps6})")
+                st.divider()
+                
+                url_maps5 = f"https://www.insee.fr/fr/statistiques/2011101?geo=COM-{insee}"
+                st.markdown(f"[🗺️ INSEE : Dossier complet commune]({url_maps5})")
 
-            url_maps7 = f"https://observatoire.atd31.fr/#c=report&chapter=demo&report=r01&selgeo1=com.{commune}&selgeo2=dep.{departement}"
-            st.markdown(f"[🗺️ HGI-GeObservatoire]({url_maps7})")
+                url_maps6 = f"https://www.picto-occitanie.fr/geoclip/#c=report&chapter=demo&report=r01&selgeo1=com16.{insee}&selgeo2=epci.{epci_siret}"
+                st.markdown(f"[🗺️ Picto-Stat]({url_maps6})")
 
-            st.divider()
+                url_maps7 = f"https://observatoire.atd31.fr/#c=report&chapter=demo&report=r01&selgeo1=com.{commune}&selgeo2=dep.{departement}"
+                st.markdown(f"[🗺️ HGI-GeObservatoire]({url_maps7})")
 
-            url_maps8 = f"https://inpn.mnhn.fr/"
-            st.markdown(f"[🗺️ Inventaire National du Patrimoine Naturel]({url_maps8})")
+                st.divider()
 
-            url_maps8 = f"https://remonterletemps.ign.fr/comparer?lon={lon}&lat={lat}&z=13.0&layer1=10&layer2=19&mode=mag"
-            st.markdown(f"[🗺️ IGN - Remonter le temps]({url_maps8})")
+                url_maps8 = f"https://inpn.mnhn.fr/"
+                st.markdown(f"[🗺️ Inventaire National du Patrimoine Naturel]({url_maps8})")
 
-            st.divider()
+                url_maps8 = f"https://remonterletemps.ign.fr/comparer?lon={lon}&lat={lat}&z=13.0&layer1=10&layer2=19&mode=mag"
+                st.markdown(f"[🗺️ IGN - Remonter le temps]({url_maps8})")
 
-            url_maps9 = f"https://macarte.ign.fr/carte/1X3jxe/Carte-EnR-Grand-public"
-            st.markdown(f"[🗺️ Portail cartographique des énergies renouvelables (Accès grand public)]({url_maps9})")
+                st.divider()
 
-            url_maps10 = f"http://arec-occitanie.terristory.fr/?zone=commune&maille=commune&zone_id={commune}&id_tableau=643"
-            st.markdown(f"[🗺️ TerriSTORY®]({url_maps10})")
+                url_maps9 = f"https://macarte.ign.fr/carte/1X3jxe/Carte-EnR-Grand-public"
+                st.markdown(f"[🗺️ Portail cartographique des énergies renouvelables (Accès grand public)]({url_maps9})")
 
-            st.divider()
+                url_maps10 = f"http://arec-occitanie.terristory.fr/?zone=commune&maille=commune&zone_id={commune}&id_tableau=643"
+                st.markdown(f"[🗺️ TerriSTORY®]({url_maps10})")
 
-            url_maps11 = f"https://explore.data.gouv.fr/fr/immobilier?onglet=carte&filtre=tous&lat={lat}&lng={lon}&zoom=12.00&code={commune}&level=commune"
-            st.markdown(f"[🗺️ Explorateur de données de valeurs foncières]({url_maps11})")
+                st.divider()
+
+                url_maps11 = f"https://explore.data.gouv.fr/fr/immobilier?onglet=carte&filtre=tous&lat={lat}&lng={lon}&zoom=12.00&code={commune}&level=commune"
+                st.markdown(f"[🗺️ Explorateur de données de valeurs foncières]({url_maps11})")
 
         else:
             st.info("Veuillez sélectionner une commune dans le sélecteur latéral.")
