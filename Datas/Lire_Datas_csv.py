@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import chardet
-import io
+import io, os
 from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent
 from .constantes import M_REG_NOM, M_DEP_NOM, M_SCOT_NOM, M_EPCI_NOM, M_COM_NOM, M_COM_INSEE, M_EPCI_SIRET
@@ -57,6 +57,12 @@ def get_unique(df, col, **filters):
 
 
 # --- Lecture du CSV ---
+@st.cache_data
+def lire_datas(fichier_utf8,sep):
+    df = pd.read_csv(fichier_utf8, sep=sep, engine="python")
+    st.success("Lecture réussie.")
+    return df  # FIX 3 : df toujours retourné dans le bon scope
+
 def lire_csv():
     """Retourne un DataFrame ou None si aucun fichier n'est chargé."""
     uploaded_file = st.file_uploader("Choisir un fichier CSV", type=["csv"])
@@ -69,13 +75,14 @@ def lire_csv():
     sep = detect_separator(raw_bytes)  # FIX 2 : raw_bytes est toujours bytes
     st.write(f"Séparateur détecté : **{sep}**")
 
-    df = pd.read_csv(fichier_utf8, sep=sep, engine="python")
-    st.success("Lecture réussie.")
+    df=lire_datas(fichier_utf8,sep)
+    
     return df  # FIX 3 : df toujours retourné dans le bon scope
 
 
 # --- Sélecteurs hiérarchiques ---# --- Sélecteurs hiérarchiques ---
 def affiche_selecteur(df: pd.DataFrame):
+    
 
     # Vérification des colonnes essentielles
     required_cols = [M_REG_NOM, M_DEP_NOM, M_SCOT_NOM, M_EPCI_NOM, M_COM_NOM]
