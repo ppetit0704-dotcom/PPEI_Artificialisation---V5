@@ -72,7 +72,7 @@ def afficher_header():
                 <h1 style='margin-bottom:0px;'>📊 Tableau de bord artificialisation communale & intercommunale</h1>
                 <div style='font-size:1rem; font-weight:600; color:orange; margin-top:6px;'>
                     Version 5.1 Stable, millésime 2026<br>
-                    Auteur : Philippe PETIT
+                    Auteur : Philippe PETIT | <a href='mailto:philippe.petit.lafiou@outlook.fr?subject=Plateforme Publique [Artificialisation V5.1]'>Contact</a>
                 </div>
             </div>
             """,
@@ -93,13 +93,6 @@ def afficher_header():
         with col2:
             if st.button("Non, annuler"):
                 st.session_state["confirm_quit"] = False
-
-
-    
-        
-
-
-
 
 def afficher_export_epci_pdf():
     st.subheader("📄 Export du rapport PDF — EPCI")
@@ -190,14 +183,12 @@ def afficher_export_epci_pdf():
             mime="application/pdf"
         )
 
-
 # Petit utilitaire pour les paliers ZAN
 def frange(start, stop, step):
     x = start
     while x <= stop:
         yield x
         x += step
-
 
 # =====================================================
 # MAIN
@@ -206,6 +197,10 @@ afficher_header()
 
 # --- SIDEBAR ---
 with st.sidebar:
+    url_maps = "https://www.data.gouv.fr/api/1/datasets/r/8c67a68a-bb1a-4b7e-b221-62ccfb8bc4f9"
+    st.sidebar.markdown("### 📥 Données de l'observatoire de l'artificialisation.")
+    st.sidebar.markdown(f"[🗺️ Télécharger les données depuis data.gouv.fr]({url_maps})")
+    st.sidebar.divider()
     with st.expander("📁 Import des données (cliquer pour afficher/masquer)"):
         st.header("📂 Import des données")
         df = lire_csv()
